@@ -1139,7 +1139,8 @@ void Weapon_Machinegun (edict_t *ent)
 	static int	pause_frames[]	= {23, 45, 0};
 	static int	fire_frames[]	= {4, 5, 0};
 
-	Weapon_Generic (ent, 3, 5, 45, 49, pause_frames, fire_frames, Machinegun_Fire);
+	// original frames: 3, 5, 45, 49
+	Weapon_Generic (ent, 3, 3, 45, 49, pause_frames, fire_frames, Machinegun_Fire);
 }
 
 void Chaingun_Fire (edict_t *ent)
@@ -1267,7 +1268,8 @@ void Weapon_Chaingun (edict_t *ent)
 	static int	pause_frames[]	= {38, 43, 51, 61, 0};
 	static int	fire_frames[]	= {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0};
 
-	Weapon_Generic (ent, 4, 31, 61, 64, pause_frames, fire_frames, Chaingun_Fire);
+	//original frames: 4, 31, 61, 64
+	Weapon_Generic (ent, 4, 31, 50, 64, pause_frames, fire_frames, Chaingun_Fire);
 }
 
 
@@ -1330,7 +1332,8 @@ void Weapon_Shotgun (edict_t *ent)
 	static int	pause_frames[]	= {22, 28, 34, 0};
 	static int	fire_frames[]	= {8, 9, 0};
 
-	Weapon_Generic (ent, 7, 18, 36, 39, pause_frames, fire_frames, weapon_shotgun_fire);
+	//original frames: 7, 18, 36, 39
+	Weapon_Generic (ent, 7, 12, 36, 39, pause_frames, fire_frames, weapon_shotgun_fire);
 }
 
 
@@ -1384,7 +1387,8 @@ void Weapon_SuperShotgun (edict_t *ent)
 	static int	pause_frames[]	= {29, 42, 57, 0};
 	static int	fire_frames[]	= {7, 0};
 
-	Weapon_Generic (ent, 6, 17, 57, 61, pause_frames, fire_frames, weapon_supershotgun_fire);
+	//original frames: 6, 17, 57, 61
+	Weapon_Generic (ent, 6, 9, 57, 61, pause_frames, fire_frames, weapon_supershotgun_fire);
 }
 
 
@@ -1407,13 +1411,16 @@ void weapon_railgun_fire (edict_t *ent)
 
 	if (deathmatch->value)
 	{	// normal damage is too extreme in dm
-		damage = 100;
+		// original values:
+		// damage = 100; kick = 200
+		damage = 20;
 		kick = 200;
 	}
 	else
 	{
-		damage = 150;
-		kick = 250;
+		//original values: damage = 150; kick = 250
+		damage = 30;
+		kick = 450;
 	}
 
 	if (is_quad)
@@ -1450,7 +1457,8 @@ void Weapon_Railgun (edict_t *ent)
 	static int	pause_frames[]	= {56, 0};
 	static int	fire_frames[]	= {4, 0};
 
-	Weapon_Generic (ent, 3, 18, 56, 61, pause_frames, fire_frames, weapon_railgun_fire);
+	//original frames: 3, 18, 56, 61
+	Weapon_Generic (ent, 3, 8, 56, 61, pause_frames, fire_frames, weapon_railgun_fire);
 }
 
 
@@ -1470,7 +1478,8 @@ void weapon_bfg_fire (edict_t *ent)
 	float	damage_radius = 1000;
 
 	if (deathmatch->value)
-		damage = 200;
+		//original DM damage = 200
+		damage = 50;
 	else
 		damage = 500;
 
@@ -1516,8 +1525,9 @@ void weapon_bfg_fire (edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
+	//checking if less ammo can be used; original ammo is 50 per shot
 	if (! ( (int)dmflags->value & DF_INFINITE_AMMO ) )
-		ent->client->pers.inventory[ent->client->ammo_index] -= 50;
+		ent->client->pers.inventory[ent->client->ammo_index] -= 10;
 }
 
 void Weapon_BFG (edict_t *ent)
@@ -1525,7 +1535,8 @@ void Weapon_BFG (edict_t *ent)
 	static int	pause_frames[]	= {39, 45, 50, 55, 0};
 	static int	fire_frames[]	= {9, 17, 0};
 
-	Weapon_Generic (ent, 8, 32, 55, 58, pause_frames, fire_frames, weapon_bfg_fire);
+	//original frames: 8, 32, 55, 58
+	Weapon_Generic (ent, 8, 24, 55, 58, pause_frames, fire_frames, weapon_bfg_fire);
 }
 
 

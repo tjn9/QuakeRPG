@@ -1095,15 +1095,19 @@ struct edict_s
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
 
-	int			experience;
+	int			expGained;
+	int			currentLevel;
+	int			maxLevel;
 	int			currentExp;
 	int			neededExp;
 	int			totalExperience;
 
+	int			playerScore;
+
 	qboolean	homing_state;
 
 	// variable for lasersight
-	edict_t		*laserlight;
+	// edict_t		*laserlight;
 
 /*	int			ammo_toggle;
 
@@ -1113,6 +1117,5 @@ struct edict_s
 	*/
 };
 
-void LaserSightThink (edict_t *self);
-void SP_LaserLight (edict_t *self);
-
+#define TELEPORT_AMMO				10
+#define TELEPORT_HEALTH				30

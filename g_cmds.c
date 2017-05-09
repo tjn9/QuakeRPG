@@ -1,6 +1,8 @@
 #include "g_local.h"
 #include "m_player.h"
 
+int LIGHTS=0;
+
 
 char *ClientTeam (edict_t *ent)
 {
@@ -948,6 +950,47 @@ void Cmd_All (edict_t *ent)
 		Add_Ammo (ent, it, 1000);
 	}
 }
+
+
+/*
+=================
+Cmd_CheckStats_f
+CCH: New function to print all players' stats
+=================
+*/
+void Cmd_CheckStats_f (edict_t *ent)
+{
+	int		i, j;
+	edict_t	*player;
+	char	stats[500];
+	vec3_t	v;
+	float	len;
+
+	// use in coop mode only
+//	if (!coop->value)
+//		return;
+
+	j = sprintf(stats, "            Name Health Range\n=============================\n");
+	for (i=0 ;i < 10 ; i++)
+	{
+		player = g_edicts + 1 + i;
+		if (!player->inuse || !player->client)
+			continue; 
+		VectorSubtract (ent->s.origin, player->s.origin, v);
+		len = VectorLength (v);
+		j += sprintf(stats + j, "%16s %6d %5.0f\n", player->client->pers.netname, player->health, len);
+		if (j > 450)
+			break;
+	}
+	gi.centerprintf(ent, "%s", stats);
+}
+
+ /*
+ =================
+ ClientCommand
+ =================
+ */
+
 /*
 =================
 ClientCommand
@@ -1033,11 +1076,104 @@ void ClientCommand (edict_t *ent)
 		Cmd_PutAway_f (ent);
 	else if (Q_stricmp (cmd, "wave") == 0)
 		Cmd_Wave_f (ent);
+	// CCH: new command 'checkstats'
+	else if (Q_stricmp (cmd, "checkstats") == 0)
+		Cmd_CheckStats_f (ent);
 	// CCH: new 'homing' command
 	else if (Q_stricmp (cmd, "homing") == 0)
 		Cmd_Homing_f (ent);
+	// Command to have all weapons available in multiplayer
 	else if (Q_stricmp (cmd, "all") == 0)
 		Cmd_All (ent);
+	else if(Q_stricmp (cmd, "lights") == 0)
+        {
+                if (LIGHTS)
+                {
+                        // 0 normal
+                        gi.configstring(CS_LIGHTS+0, "m");
+        
+                        // 1 FLICKER (first variety)
+                        gi.configstring(CS_LIGHTS+1, "mmnmmommommnonmmonqnmmo");
+        
+                        // 2 SLOW STRONG PULSE
+                        gi.configstring(CS_LIGHTS+2, "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba");
+        
+                        // 3 CANDLE (first variety)
+                        gi.configstring(CS_LIGHTS+3, "mmmmmaaaaammmmmaaaaaabcdefgabcdefg");
+        
+                        // 4 FAST STROBE
+                        gi.configstring(CS_LIGHTS+4, "mamamamamama");
+        
+                        // 5 GENTLE PULSE 1
+                        gi.configstring(CS_LIGHTS+5,"jklmnopqrstuvwxyzyxwvutsrqponmlkj");
+        
+                        // 6 FLICKER (second variety)
+                        gi.configstring(CS_LIGHTS+6, "nmonqnmomnmomomno");
+        
+                        // 7 CANDLE (second variety)
+                        gi.configstring(CS_LIGHTS+7, "mmmaaaabcdefgmmmmaaaammmaamm");
+        
+                        // 8 CANDLE (third variety)
+                        gi.configstring(CS_LIGHTS+8, "mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa");
+        
+                        // 9 SLOW STROBE (fourth variety)
+                        gi.configstring(CS_LIGHTS+9, "aaaaaaaazzzzzzzz");
+        
+                        // 10 FLUORESCENT FLICKER
+                        gi.configstring(CS_LIGHTS+10, "mmamammmmammamamaaamammma");
+
+                        // 11 SLOW PULSE NOT FADE TO BLACK
+                        gi.configstring(CS_LIGHTS+11, "abcdefghijklmnopqrrqponmlkjihgfedcba");
+        
+                        //JR 3/26/98
+                        //12 Wierd flashing
+                        gi.configstring(CS_LIGHTS+12, "ahsbexcbkxerswaibldcwersxa");
+                        LIGHTS =0;
+                }
+                else
+                {
+                        // 0 normal
+                        gi.configstring(CS_LIGHTS+0, "a");
+        
+                        // 1 FLICKER (first variety)
+                        gi.configstring(CS_LIGHTS+1, "a");
+        
+                        // 2 SLOW STRONG PULSE
+                        gi.configstring(CS_LIGHTS+2, "a");
+        
+                        // 3 CANDLE (first variety)
+                        gi.configstring(CS_LIGHTS+3, "a");
+        
+                        // 4 FAST STROBE
+                        gi.configstring(CS_LIGHTS+4, "a");
+        
+                        // 5 GENTLE PULSE 1
+                        gi.configstring(CS_LIGHTS+5,"a");
+        
+                        // 6 FLICKER (second variety)
+                        gi.configstring(CS_LIGHTS+6, "a");
+        
+                        // 7 CANDLE (second variety)
+                        gi.configstring(CS_LIGHTS+7, "a");
+        
+                        // 8 CANDLE (third variety)
+                        gi.configstring(CS_LIGHTS+8, "a");
+        
+                        // 9 SLOW STROBE (fourth variety)
+                        gi.configstring(CS_LIGHTS+9, "a");
+        
+                        // 10 FLUORESCENT FLICKER
+                        gi.configstring(CS_LIGHTS+10, "a");
+
+                        // 11 SLOW PULSE NOT FADE TO BLACK
+                        gi.configstring(CS_LIGHTS+11, "a");
+        
+                        //JR 3/26/98
+                        //12 Wierd flashing
+                        gi.configstring(CS_LIGHTS+12, "a");
+                        LIGHTS = 1;
+                }
+        }
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
 	else	// anything that doesn't match a command will be a chat

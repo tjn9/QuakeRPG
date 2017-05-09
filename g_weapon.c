@@ -210,7 +210,8 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 				if (strncmp (tr.surface->name, "sky", 3) != 0)
 				{
 					gi.WriteByte (svc_temp_entity);
-					gi.WriteByte (te_impact);
+					//gi.WriteByte (te_impact);
+					gi.WriteByte (EF_QUAD);
 					gi.WritePosition (tr.endpos);
 					gi.WriteDir (tr.plane.normal);
 					gi.multicast (tr.endpos, MULTICAST_PVS);
@@ -239,7 +240,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 		VectorScale (pos, 0.5, pos);
 
 		gi.WriteByte (svc_temp_entity);
-		gi.WriteByte (TE_BUBBLETRAIL);
+		gi.WriteByte (EF_FLAG2);
 		gi.WritePosition (water_start);
 		gi.WritePosition (tr.endpos);
 		gi.multicast (pos, MULTICAST_PVS);
@@ -274,6 +275,9 @@ void fire_shotgun (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int k
 
 	for (i = 0; i < count; i++)
 		fire_lead (self, start, aimdir, damage, kick, TE_SHOTGUN, hspread, vspread, mod);
+
+	//testing exp count
+
 }
 
 
@@ -354,8 +358,8 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	bolt->s.modelindex = gi.modelindex ("models/objects/laser/tris.md2");
 	bolt->s.sound = gi.soundindex ("misc/lasfly.wav");
 	bolt->owner = self;
-	++self->experience;
-	gi.dprintf("experience: %d\n", self->experience);
+	++self->expGained;
+	gi.dprintf("experience: %d\n", self->expGained);
 	bolt->touch = blaster_touch;
 	bolt->nextthink = level.time + 2;
 	bolt->think = G_FreeEdict;
@@ -375,17 +379,36 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 		bolt->touch (bolt, tr.ent, NULL, NULL);
 	}
 	
-	if (self->experience == 50)
+	if (self->expGained == 50)
+	{
+		self->health = 100;
+		self->max_health += 20;
 		gi.centerprintf (self, "Level 2 achieved!");
-
-	if (self->experience == 100)
+	}
+	if (self->expGained == 100)
+	{
+		self->health = 100;
+		self->max_health += 20;
 		gi.centerprintf (self, "Level 3 achieved!");
-
-	if (self->experience == 200)
+	}
+	if (self->expGained == 200)
+	{
+		self->health = 100;
+		self->max_health += 20;
 		gi.centerprintf (self, "Level 4 achieved!");
-
-	if (self->experience == 400)
+	}
+	if (self->expGained == 400)
+	{
+		self->health = 100;
+		self->max_health += 20;
 		gi.centerprintf (self, "Level 5 achieved! Max Level!");
+	}
+	if (self->expGained == 800)
+	{
+		self->health = 100;
+		self->max_health += 20;
+		gi.centerprintf (self, "Level 6 achieved! Cheater!");
+	}
 }	
 
 
@@ -482,6 +505,38 @@ static void Grenade_Touch (edict_t *ent, edict_t *other, cplane_t *plane, csurfa
 	Grenade_Explode (ent);
 }
 
+// CCH: New think function for proximity grenades
+static void proxim_think (edict_t *ent)
+{
+	edict_t *blip = NULL;
+
+	if (level.time > ent->delay)
+	{
+		Grenade_Explode(ent);
+		return;
+	}
+	
+	ent->think = proxim_think;
+	while ((blip = findradius(blip, ent->s.origin, 100)) != NULL)
+	{
+		if (!(blip->svflags & SVF_MONSTER) && !blip->client)
+			continue;
+		if (blip == ent->owner)
+			continue;
+		if (!blip->takedamage)
+			continue;
+		if (blip->health <= 0)
+			continue;
+		if (!visible(ent, blip))
+			continue;
+		ent->think = Grenade_Explode;
+		break;
+	}
+
+	ent->nextthink = level.time + .1;
+}
+
+
 void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed, float timer, float damage_radius)
 {
 	edict_t	*grenade;
@@ -506,8 +561,15 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	grenade->s.modelindex = gi.modelindex ("models/objects/grenade/tris.md2");
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
-	grenade->nextthink = level.time + timer;
-	grenade->think = Grenade_Explode;
+	//original think function
+	/*grenade->nextthink = level.time + timer;
+	grenade->think = Grenade_Explode;*/
+
+	// CCH: use our proximity think instead
+ 	grenade->nextthink = level.time + .1;
+ 	grenade->think = proxim_think;
+ 	grenade->delay = level.time + 60;
+
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "grenade";
@@ -539,8 +601,14 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	grenade->s.modelindex = gi.modelindex ("models/objects/grenade2/tris.md2");
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
-	grenade->nextthink = level.time + timer;
-	grenade->think = Grenade_Explode;
+	//original think function
+	/*grenade->nextthink = level.time + timer;
+	grenade->think = Grenade_Explode; */
+
+	// CCH: use our proximity think instead
+	grenade->nextthink = level.time + .1;
+	grenade->think = proxim_think;
+	grenade->delay = level.time + 60;
 	grenade->dmg = damage;
 	grenade->dmg_radius = damage_radius;
 	grenade->classname = "hgrenade";
@@ -978,6 +1046,10 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 	bfg->dmg_radius = damage_radius;
 	bfg->classname = "bfg blast";
 	bfg->s.sound = gi.soundindex ("weapons/bfg__l1a.wav");
+
+	bfg->owner = self;
+	++self->expGained;
+	gi.dprintf("experience: %d\n", self->expGained);
 
 	bfg->think = bfg_think;
 	bfg->nextthink = level.time + FRAMETIME;

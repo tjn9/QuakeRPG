@@ -1739,11 +1739,22 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	}
 
 	//level up system
-	//if (client->
-
-/*	if (ent->poison_level > 0)
+	/* if (ent->currentLevel)
 	{
-		T_Damage (ent, ent->poisoner, zero, ent->s.origin, zero int damage, int knockback, int dflags, int mod)
+		if (ent->playerScore < client->resp.score)
+		{
+			ent->playerScore = client->resp.score;
+			if (ent->currentLevel < maxLevel)
+			{
+				ent->currentExp = (ent->currentLevel + expGained);
+				if (ent->current_exp >= ent->needed_exp)
+				{
+					ent->currentLevel++;
+					ent->currentExp = (ent->currentExp - ent->neededExp);
+					ent->neededExp = (ent->neededExp * 1.5);
+				}
+			}
+		}
 	} */
 }
 
